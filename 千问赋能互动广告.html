@@ -1,0 +1,875 @@
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>给万物装上千问大脑 - 阿里云千问大模型互动广告</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0078D7',
+                        secondary: '#1890FF',
+                        dark: '#0056B3',
+                        light: '#E6F7FF',
+                        accent: '#00A0E9'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 3s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                        'flow': 'flow 8s linear infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        glow: {
+                            '0%': { boxShadow: '0 0 5px rgba(0, 120, 215, 0.5)' },
+                            '100%': { boxShadow: '0 0 20px rgba(0, 120, 215, 0.8), 0 0 30px rgba(0, 120, 215, 0.6)' },
+                        },
+                        flow: {
+                            '0%': { backgroundPosition: '0% 50%' },
+                            '100%': { backgroundPosition: '100% 50%' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow { text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+            .text-shadow-lg { text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
+            .bg-gradient-blue { background: linear-gradient(135deg, #0056B3 0%, #0078D7 50%, #1890FF 100%); }
+            .bg-gradient-light { background: linear-gradient(135deg, #E6F7FF 0%, #F0F9FF 100%); }
+            .bg-flow {
+                background-size: 200% 200%;
+                animation: flow 8s ease infinite;
+                background-image: linear-gradient(-45deg, rgba(0, 120, 215, 0.1) 0%, rgba(24, 144, 255, 0.1) 25%, rgba(0, 120, 215, 0.1) 50%, rgba(24, 144, 255, 0.1) 75%, rgba(0, 120, 215, 0.1) 100%);
+            }
+            .glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+            .brain-glow { filter: drop-shadow(0 0 15px rgba(0, 120, 215, 0.8)); }
+            .scene-card { transition: all 0.3s ease; }
+            .scene-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px -5px rgba(0, 120, 215, 0.3); }
+            .btn-primary { transition: all 0.3s ease; position: relative; overflow: hidden; }
+            .btn-primary:after {
+                content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0;
+                background: rgba(255, 255, 255, 0.2); border-radius: 50%;
+                transform: translate(-50%, -50%); transition: width 0.6s, height 0.6s;
+            }
+            .btn-primary:active:after { width: 300px; height: 300px; }
+            .particle {
+                position: absolute; border-radius: 50%; background: rgba(0, 120, 215, 0.5);
+                pointer-events: none; animation: particle-animation 2s ease-out forwards;
+            }
+            @keyframes particle-animation {
+                0% { transform: scale(1); opacity: 1; }
+                100% { transform: scale(0); opacity: 0; }
+            }
+            .level-animation { transition: all 0.5s ease; }
+            .level-animation.hidden { opacity: 0; transform: translateY(20px); }
+            .level-animation.visible { opacity: 1; transform: translateY(0); }
+            .blue-light {
+                position: absolute; width: 100%; height: 100%;
+                background: radial-gradient(circle, rgba(0, 120, 215, 0.2) 0%, rgba(0, 120, 215, 0) 70%);
+                pointer-events: none; opacity: 0; transition: opacity 0.5s ease;
+            }
+            .blue-light.active { opacity: 1; animation: pulse 1.5s ease-in-out infinite alternate; }
+            @keyframes pulse {
+                0% { transform: scale(0.8); opacity: 0.5); }
+                100% { transform: scale(1.2); opacity: 0.2); }
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-light min-h-screen font-sans text-gray-800 overflow-x-hidden">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- 1. 启动首页 -->
+        <section id="start-page" class="flex flex-col items-center justify-center min-h-[80vh] text-center relative">
+            <div class="absolute inset-0 bg-flow z-0"></div>
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 text-primary text-shadow-lg relative z-10">
+                千问大模型<br>
+                <span class="text-2xl md:text-3xl lg:text-4xl">让每一件工具，都活成懂你的新生命</span>
+            </h1>
+            <div class="relative mb-12 w-64 h-64 md:w-80 md:h-80 flex items-center justify-center">
+                <img src="Q3eqMWS.png" class="w-full h-full object-contain brain-glow animate-float relative z-10">
+                <div class="blue-light"></div>
+            </div>
+            <button id="start-btn" class="btn-primary bg-primary hover:bg-dark text-white text-xl font-bold py-4 px-10 rounded-full shadow-lg relative z-10">
+                点击，开始赋予万物灵魂
+            </button>
+        </section>
+
+        <!-- 2. 场景选择页 -->
+        <section id="scene-selection" class="hidden py-12">
+            <h2 class="text-3xl md:text-4xl font-bold mb-12 text-center text-primary text-shadow">选择一个场景，赋予它千问大脑</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="scene-card bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer" data-level="car">
+                    <div class="h-48 overflow-hidden flex items-center justify-center bg-light">
+                        <img src="cWeJ2Ge.png" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 text-primary">会思考的自动驾驶汽车</h3>
+                        <p class="text-gray-600">给汽车装上千问大脑，进化成懂路况、懂你的出行伙伴</p>
+                    </div>
+                </div>
+
+                <div class="scene-card bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer" data-level="software">
+                    <div class="h-48 overflow-hidden flex items-center justify-center bg-light">
+                        <img src="jW7GJUA.png" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 text-primary">懂创作的AI超级软件</h3>
+                        <p class="text-gray-600">让软件拥有理解与创造力，一句话搞定复杂工作</p>
+                    </div>
+                </div>
+
+                <div class="scene-card bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer" data-level="hardware">
+                    <div class="h-48 overflow-hidden flex items-center justify-center bg-light">
+                        <img src="kDmaMG1.png" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 text-primary">通人性的智能硬件</h3>
+                        <p class="text-gray-600">让硬件通人性、懂需求、会思考，成为智能管家</p>
+                    </div>
+                </div>
+
+                <div class="scene-card bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer" data-level="toy">
+                    <div class="h-48 overflow-hidden flex items-center justify-center bg-light">
+                        <img src="n0sZ2i1.png" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 text-primary">陪你长大的智能玩伴</h3>
+                        <p class="text-gray-600">赋予玩具性格与灵魂，成为陪伴成长的智能伙伴</p>
+                    </div>
+                </div>
+
+                <div class="scene-card bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer" data-level="create">
+                    <div class="h-48 overflow-hidden flex items-center justify-center bg-light">
+                        <img src="wLZXDnZ.png" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 text-primary">自由创造：我的AI新物种</h3>
+                        <p class="text-gray-600">选择一个物品，赋予它千问大脑，创造属于你的AI新物种</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 关卡1：汽车 -->
+        <section id="level-car" class="hidden py-12">
+            <div class="flex flex-col items-center">
+                <h2 class="text-3xl font-bold mb-8 text-center text-primary text-shadow">给汽车装上千问大脑</h2>
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-8 w-full max-w-4xl">
+                    <div class="mb-6">
+                        <p class="text-lg mb-4">四个轮子的机器，只会死板执行指令</p>
+                        <div class="relative h-64 bg-light rounded-lg flex items-center justify-center">
+                            <img src="cWeJ2Ge.png" class="w-full h-full object-contain">
+                            <div class="blue-light" id="car-light"></div>
+                        </div>
+                    </div>
+                    <button id="install-car" class="btn-primary bg-primary hover:bg-dark text-white text-lg font-bold py-3 px-8 rounded-full shadow-lg mb-8 w-full">
+                        安装千问大模型
+                    </button>
+                    <div id="car-features" class="hidden">
+                        <h3 class="text-xl font-bold mb-4 text-primary">千问大脑已安装成功！汽车进化为智能出行伙伴</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="level-animation hidden bg-light rounded-lg p-4 cursor-pointer feature-item" data-feature="crossroad">
+                                <div class="flex items-center mb-2">
+                                    <i class="fa fa-car text-primary text-2xl mr-3"></i>
+                                    <h4 class="font-bold">混乱路口</h4>
+                                </div>
+                                <p class="text-sm text-gray-600">汽车自动预判行人、电动车，安全通过</p>
+                            </div>
+                            <div class="level-animation hidden bg-light rounded-lg p-4 cursor-pointer feature-item" data-feature="voice">
+                                <div class="flex items-center mb-2">
+                                    <i class="fa fa-microphone text-primary text-2xl mr-3"></i>
+                                    <h4 class="font-bold">语音指令</h4>
+                                </div>
+                                <p class="text-sm text-gray-600">输入"找个能吃饭又好停车的地方"，汽车自动规划路线</p>
+                            </div>
+                            <div class="level-animation hidden bg-light rounded-lg p-4 cursor-pointer feature-item" data-feature="emotion">
+                                <div class="flex items-center mb-2">
+                                    <i class="fa fa-heartbeat text-primary text-2xl mr-3"></i>
+                                    <h4 class="font-bold">情绪感知</h4>
+                                </div>
+                                <p class="text-sm text-gray-600">车内显示"检测到你有点累，已调舒适模式"</p>
+                            </div>
+                        </div>
+                        <div id="feature-demo" class="mt-8 hidden">
+                            <div class="bg-light rounded-lg p-6">
+                                <h4 class="font-bold text-lg mb-3" id="demo-title"></h4>
+                                <p class="mb-4" id="demo-description"></p>
+                                <div id="demo-animation" class="h-40 bg-gray-100 rounded-lg flex items-center justify-center">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-8 text-center">
+                            <p class="text-xl font-bold text-primary mb-4">
+                                千问大模型=汽车的智能大脑，从机器进化成懂路况、懂你的出行伙伴
+                            </p>
+                            <button class="next-level bg-primary hover:bg-dark text-white text-lg font-bold py-3 px-8 rounded-full shadow-lg">
+                                探索下一个场景
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <button class="back-to-scenes text-primary hover:text-dark font-bold flex items-center">
+                    <i class="fa fa-arrow-left mr-2"></i> 返回场景选择
+                </button>
+            </div>
+        </section>
+
+        <!-- 4. 关卡2：软件 -->
+        <section id="level-software" class="hidden py-12">
+            <div class="flex flex-col items-center">
+                <h2 class="text-3xl font-bold mb-8 text-center text-primary text-shadow">给软件装上千问大脑</h2>
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-8 w-full max-w-4xl">
+                    <div class="mb-6">
+                        <p class="text-lg mb-4">旧软件界面：只会算数、排版，无法思考</p>
+                        <div class="relative h-64 bg-light rounded-lg flex items-center justify-center">
+                            <img src="jW7GJUA.png" class="w-full h-full object-contain">
+                            <div class="blue-light" id="software-light"></div>
+                        </div>
+                    </div>
+                    <button id="install-software" class="btn-primary bg-primary hover:bg-dark text-white text-lg font-bold py-3 px-8 rounded-full shadow-lg mb-8 w-full">
+                        注入千问能力
+                    </button>
+                    <div id="software-features" class="hidden">
+                        <h3 class="text-xl font-bold mb-4 text-primary">千问大脑已注入成功！软件进化为超级助手</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="level-animation hidden bg-light rounded-lg p-4 cursor-pointer feature-item" data-feature="copywriting">
+                                <div class="flex items-center mb-2">
+                                    <i class="fa fa-pencil text-primary text-2xl mr-3"></i>
+                                    <h4 class="font-bold">写文案</h4>
+                                </div>
+                                <p class="text-sm text-gray-600">自动生成各类文案内容</p>
+                            </div>
+                            <div class="level-animation hidden bg-light rounded-lg p-4 cursor-pointer feature-item" data-feature="spreadsheet">
+                                <div class="flex items-center mb-2">
+                                    <i class="fa fa-table text-primary text-2xl mr-3"></i>
+                                    <h4 class="font-bold">做表格</h4>
+                                </div>
+                                <p class="text-sm text-gray-600">自动分析数据，生成图表</p>
+                            </div>
+                            <div class="level-animation hidden bg-light rounded-lg p-4 cursor-pointer feature-item" data-feature="video">
+                                <div class="flex items-center mb-2">
+                                    <i class="fa fa-film text-primary text-2xl mr-3"></i>
+                                    <h4 class="font-bold">剪视频</h4>
+                                </div>
+                                <p class="text-sm text-gray-600">自动剪辑视频，添加特效</p>
+                            </div>
+                        </div>
+                        <div id="software-demo" class="mt-8 hidden">
+                            <div class="bg-light rounded-lg p-6">
+                                <h4 class="font-bold text-lg mb-3" id="software-demo-title"></h4>
+                                <p class="mb-4" id="software-demo-description"></p>
+                                <div id="software-demo-animation" class="h-40 bg-gray-100 rounded-lg flex items-center justify-center">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-8 text-center">
+                            <p class="text-xl font-bold text-primary mb-4">
+                                千问让软件拥有理解与创造力，一句话搞定复杂工作
+                            </p>
+                            <button class="next-level bg-primary hover:bg-dark text-white text-lg font-bold py-3 px-8 rounded-full shadow-lg">
+                                探索下一个场景
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <button class="back-to-scenes text-primary hover:text-dark font-bold flex items-center">
+                    <i class="fa fa-arrow-left mr-2"></i> 返回场景选择
+                </button>
+            </div>
+        </section>
+
+        <!-- 5. 关卡3：智能硬件 -->
+        <section id="level-hardware" class="hidden py-12">
+            <div class="flex flex-col items-center">
+                <h2 class="text-3xl font-bold mb-8 text-center text-primary text-shadow">给硬件装上千问大脑</h2>
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-8 w-full max-w-4xl">
+                    <div class="mb-6">
+                        <p class="text-lg mb-4">普通硬件：功能单一，缺乏理解能力</p>
+                        <div class="relative h-64 bg-light rounded-lg flex items-center justify-center">
+                            <img src="kDmaMG1.png" class="w-full h-full object-contain">
+                            <div class="blue-light" id="hardware-light"></div>
+                        </div>
+                    </div>
+                    <button id="install-hardware" class="btn-primary bg-primary hover:bg-dark text-white text-lg font-bold py-3 px-8 rounded-full shadow-lg mb-8 w-full">
+                        安装千问大脑
+                    </button>
+                    <div id="hardware-features" class="hidden">
+                        <h3 class="text-xl font-bold mb-4 text-primary">千问大脑已安装成功！硬件进化为智能管家</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="level-animation hidden bg-light rounded-lg p-4 cursor-pointer feature-item" data-feature="robot">
+                                <div class="flex items-center mb-2">
+                                    <i class="fa fa-random text-primary text-2xl mr-3"></i>
+                                    <h4 class="font-bold">扫地机器人</h4>
+                                </div>
+                                <p class="text-sm text-gray-600">识别头发/玩具，智能清扫不磕碰</p>
+                            </div>
+                            <div class="level-animation hidden bg-light rounded-lg p-4 cursor-pointer feature-item" data-feature="glasses">
+                                <div class="flex items-center mb-2">
+                                    <i class="fa fa-eye text-primary text-2xl mr-3"></i>
+                                    <h4 class="font-bold">智能眼镜</h4>
+                                </div>
+                                <p class="text-sm text-gray-600">实时翻译外语对话</p>
+                            </div>
+                            <div class="level-animation hidden bg-light rounded-lg p-4 cursor-pointer feature-item" data-feature="watch">
+                                <div class="flex items-center mb-2">
+                                    <i class="fa fa-clock-o text-primary text-2xl mr-3"></i>
+                                    <h4 class="font-bold">智能手表</h4>
+                                </div>
+                                <p class="text-sm text-gray-600">主动提醒天气、健康状况</p>
+                            </div>
+                        </div>
+                        <div id="hardware-demo" class="mt-8 hidden">
+                            <div class="bg-light rounded-lg p-6">
+                                <h4 class="font-bold text-lg mb-3" id="hardware-demo-title"></h4>
+                                <p class="mb-4" id="hardware-demo-description"></p>
+                                <div id="hardware-demo-animation" class="h-40 bg-gray-100 rounded-lg flex items-center justify-center">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-8 text-center">
+                            <p class="text-xl font-bold text-primary mb-4">
+                                千问大模型，让硬件通人性、懂需求、会思考
+                            </p>
+                            <button class="next-level bg-primary hover:bg-dark text-white text-lg font-bold py-3 px-8 rounded-full shadow-lg">
+                                探索下一个场景
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <button class="back-to-scenes text-primary hover:text-dark font-bold flex items-center">
+                    <i class="fa fa-arrow-left mr-2"></i> 返回场景选择
+                </button>
+            </div>
+        </section>
+
+        <!-- 6. 关卡4：智能玩伴 -->
+        <section id="level-toy" class="hidden py-12">
+            <div class="flex flex-col items-center">
+                <h2 class="text-3xl font-bold mb-8 text-center text-primary text-shadow">给玩具装上千问大脑</h2>
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-8 w-full max-w-4xl">
+                    <div class="mb-6">
+                        <p class="text-lg mb-4">普通塑料玩具：不会说话，没有互动</p>
+                        <div class="relative h-64 bg-light rounded-lg flex items-center justify-center">
+                            <img src="n0sZ2i1.png" class="w-full h-full object-contain">
+                            <div class="blue-light" id="toy-light"></div>
+                        </div>
+                    </div>
+                    <button id="install-toy" class="btn-primary bg-primary hover:bg-dark text-white text-lg font-bold py-3 px-8 rounded-full shadow-lg mb-8 w-full">
+                        安装千问大脑
+                    </button>
+                    <div id="toy-features" class="hidden">
+                        <h3 class="text-xl font-bold mb-4 text-primary">千问大脑已安装成功！玩具进化为智能玩伴</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="level-animation hidden bg-light rounded-lg p-4 cursor-pointer feature-item" data-feature="chat">
+                                <div class="flex items-center mb-2">
+                                    <i class="fa fa-comments text-primary text-2xl mr-3"></i>
+                                    <h4 class="font-bold">陪聊天</h4>
+                                </div>
+                                <p class="text-sm text-gray-600">随时陪你聊天，分享心事</p>
+                            </div>
+                            <div class="level-animation hidden bg-light rounded-lg p-4 cursor-pointer feature-item" data-feature="story">
+                                <div class="flex items-center mb-2">
+                                    <i class="fa fa-book text-primary text-2xl mr-3"></i>
+                                    <h4 class="font-bold">讲故事</h4>
+                                </div>
+                                <p class="text-sm text-gray-600">讲述各种精彩有趣的故事</p>
+                            </div>
+                            <div class="level-animation hidden bg-light rounded-lg p-4 cursor-pointer feature-item" data-feature="riddle">
+                                <div class="flex items-center mb-2">
+                                    <i class="fa fa-question-circle text-primary text-2xl mr-3"></i>
+                                    <h4 class="font-bold">猜谜语</h4>
+                                </div>
+                                <p class="text-sm text-gray-600">出有趣的谜语，一起动脑筋</p>
+                            </div>
+                            <div class="level-animation hidden bg-light rounded-lg p-4 cursor-pointer feature-item" data-feature="memory">
+                                <div class="flex items-center mb-2">
+                                    <i class="fa fa-heart text-primary text-2xl mr-3"></i>
+                                    <h4 class="font-bold">记住喜好</h4>
+                                </div>
+                                <p class="text-sm text-gray-600">记住你的喜好，成为懂你的朋友</p>
+                            </div>
+                        </div>
+                        <div id="toy-demo" class="mt-8 hidden">
+                            <div class="bg-light rounded-lg p-6">
+                                <h4 class="font-bold text-lg mb-3" id="toy-demo-title"></h4>
+                                <p class="mb-4" id="toy-demo-description"></p>
+                                <div id="toy-demo-animation" class="h-40 bg-gray-100 rounded-lg flex items-center justify-center">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-8 text-center">
+                            <p class="text-xl font-bold text-primary mb-4">
+                                千问赋予玩具性格与灵魂，成为陪伴成长的智能伙伴
+                            </p>
+                            <button class="next-level bg-primary hover:bg-dark text-white text-lg font-bold py-3 px-8 rounded-full shadow-lg">
+                                探索下一个场景
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <button class="back-to-scenes text-primary hover:text-dark font-bold flex items-center">
+                    <i class="fa fa-arrow-left mr-2"></i> 返回场景选择
+                </button>
+            </div>
+        </section>
+
+        <!-- 7. 关卡5：自由创造 -->
+        <section id="level-create" class="hidden py-12">
+            <div class="flex flex-col items-center">
+                <h2 class="text-3xl font-bold mb-8 text-center text-primary text-shadow">自由创造：我的AI新物种</h2>
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-8 w-full max-w-4xl">
+                    <div class="mb-6">
+                        <p class="text-lg mb-4">选择一个物品，赋予它千问大脑</p>
+                        <div class="relative h-64 bg-light rounded-lg flex items-center justify-center">
+                            <img src="wLZXDnZ.png" class="w-full h-full object-contain">
+                            <div class="blue-light" id="create-light"></div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+                        <div class="bg-light rounded-lg p-4 cursor-pointer item-option selected" data-item="fridge">
+                            <div class="flex flex-col items-center">
+                                <i class="fa fa-snowflake-o text-primary text-3xl mb-2"></i>
+                                <span class="text-sm">冰箱</span>
+                            </div>
+                        </div>
+                        <div class="bg-light rounded-lg p-4 cursor-pointer item-option" data-item="ac">
+                            <div class="flex flex-col items-center">
+                                <i class="fa fa-snowflake-o text-primary text-3xl mb-2"></i>
+                                <span class="text-sm">空调</span>
+                            </div>
+                        </div>
+                        <div class="bg-light rounded-lg p-4 cursor-pointer item-option" data-item="lock">
+                            <div class="flex flex-col items-center">
+                                <i class="fa fa-lock text-primary text-3xl mb-2"></i>
+                                <span class="text-sm">门锁</span>
+                            </div>
+                        </div>
+                        <div class="bg-light rounded-lg p-4 cursor-pointer item-option" data-item="lamp">
+                            <div class="flex flex-col items-center">
+                                <i class="fa fa-lightbulb-o text-primary text-3xl mb-2"></i>
+                                <span class="text-sm">台灯</span>
+                            </div>
+                        </div>
+                        <div class="bg-light rounded-lg p-4 cursor-pointer item-option" data-item="bag">
+                            <div class="flex flex-col items-center">
+                                <i class="fa fa-briefcase text-primary text-3xl mb-2"></i>
+                                <span class="text-sm">书包</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="create-ai" class="btn-primary bg-primary hover:bg-dark text-white text-lg font-bold py-3 px-8 rounded-full shadow-lg mb-8 w-full">
+                        赋予千问大脑
+                    </button>
+                    <div id="creation-result" class="hidden">
+                        <h3 class="text-xl font-bold mb-4 text-primary">你的AI新物种已创造成功！</h3>
+                        <div class="bg-light rounded-lg p-6 mb-6">
+                            <div class="flex items-center mb-4">
+                                <div id="creation-icon" class="text-primary text-5xl mr-4"></div>
+                                <div>
+                                    <h4 class="font-bold text-lg" id="creation-name"></h4>
+                                    <p id="creation-description"></p>
+                                </div>
+                            </div>
+                            <div id="creation-animation" class="h-40 bg-gray-100 rounded-lg flex items-center justify-center">
+                            </div>
+                        </div>
+                        <div id="creation-poster" class="border-4 border-primary rounded-lg p-4 mb-6">
+                            <div class="text-center mb-4">
+                                <h3 class="text-2xl font-bold text-primary">我的AI新物种</h3>
+                            </div>
+                            <div class="bg-gradient-blue text-white p-6 rounded-lg">
+                                <div class="flex items-center mb-4">
+                                    <div id="poster-icon" class="text-white text-5xl mr-4"></div>
+                                    <div>
+                                        <h4 class="font-bold text-xl" id="poster-name"></h4>
+                                        <p id="poster-description"></p>
+                                    </div>
+                                </div>
+                                <div class="mt-4 text-center">
+                                    <p class="text-lg">由千问大模型赋能</p>
+                                    <p class="text-sm mt-2">千问大模型·让每一件工具，都活成懂你的新生命</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <button id="save-poster" class="bg-primary hover:bg-dark text-white text-lg font-bold py-3 px-8 rounded-full shadow-lg flex-1">
+                                <i class="fa fa-download mr-2"></i> 保存海报
+                            </button>
+                            <button id="share-creation" class="bg-accent hover:bg-blue-600 text-white text-lg font-bold py-3 px-8 rounded-full shadow-lg flex-1">
+                                <i class="fa fa-share-alt mr-2"></i> 分享我的创造
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <button class="back-to-scenes text-primary hover:text-dark font-bold flex items-center">
+                    <i class="fa fa-arrow-left mr-2"></i> 返回场景选择
+                </button>
+            </div>
+        </section>
+
+        <!-- 8. 结束页 -->
+        <section id="end-page" class="hidden py-12">
+            <div class="flex flex-col items-center">
+                <h2 class="text-3xl md:text-4xl font-bold mb-8 text-center text-primary text-shadow">千问大模型——AI时代新物种的大脑</h2>
+                <div class="bg-white rounded-xl shadow-lg p-8 mb-8 w-full max-w-4xl text-center">
+                    <div class="mb-8">
+                        <img src="g1UwVei.png" class="w-64 mx-auto object-contain brain-glow">
+                    </div>
+                    <div class="mb-8">
+                        <p class="text-xl mb-4">从工具到伙伴，从指令到理解</p>
+                        <p class="text-xl font-bold text-primary">千问大模型，不止升级机器，更在进化数字生命</p>
+                    </div>
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <button id="learn-more" class="bg-primary hover:bg-dark text-white text-lg font-bold py-3 px-8 rounded-full shadow-lg flex-1">
+                            了解千问大模型
+                        </button>
+                        <button id="share-game" class="bg-accent hover:bg-blue-600 text-white text-lg font-bold py-3 px-8 rounded-full shadow-lg flex-1">
+                            分享我的创造
+                        </button>
+                    </div>
+                </div>
+                <button id="restart-game" class="text-primary hover:text-dark font-bold flex items-center">
+                    <i class="fa fa-refresh mr-2"></i> 重新开始游戏
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <footer class="bg-primary text-white py-6">
+        <div class="container mx-auto px-4 text-center">
+            <p>© 2026 阿里云千问大模型 | 让每一件工具，都活成懂你的新生命</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function showPage(pageId) {
+                document.querySelectorAll('section').forEach(section => {
+                    section.classList.add('hidden');
+                });
+                document.getElementById(pageId).classList.remove('hidden');
+            }
+            
+            function createParticles(x, y) {
+                for (let i = 0; i < 10; i++) {
+                    const particle = document.createElement('div');
+                    particle.classList.add('particle');
+                    const size = Math.random() * 10 + 5;
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = Math.random() * 50 + 20;
+                    particle.style.width = `${size}px`;
+                    particle.style.height = `${size}px`;
+                    particle.style.left = `${x}px`;
+                    particle.style.top = `${y}px`;
+                    document.body.appendChild(particle);
+                    setTimeout(() => {
+                        particle.style.transform = `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px)`;
+                    }, 10);
+                    setTimeout(() => {
+                        particle.remove();
+                    }, 2000);
+                }
+            }
+            
+            document.getElementById('start-btn').addEventListener('click', function(e) {
+                createParticles(e.clientX, e.clientY);
+                setTimeout(() => {
+                    showPage('scene-selection');
+                }, 500);
+            });
+            
+            document.querySelectorAll('.scene-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const level = this.getAttribute('data-level');
+                    showPage(`level-${level}`);
+                });
+            });
+            
+            document.querySelectorAll('.back-to-scenes').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    showPage('scene-selection');
+                });
+            });
+            
+            // 关卡1：汽车
+            document.getElementById('install-car').addEventListener('click', function() {
+                document.getElementById('car-light').classList.add('active');
+                setTimeout(() => {
+                    document.getElementById('car-features').classList.remove('hidden');
+                    const features = document.querySelectorAll('#car-features .feature-item');
+                    features.forEach((feature, index) => {
+                        setTimeout(() => {
+                            feature.classList.remove('hidden');
+                            feature.classList.add('visible');
+                        }, index * 300);
+                    });
+                }, 1500);
+            });
+            
+            document.querySelectorAll('#car-features .feature-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const feature = this.getAttribute('data-feature');
+                    const demo = document.getElementById('feature-demo');
+                    const demoTitle = document.getElementById('demo-title');
+                    const demoDescription = document.getElementById('demo-description');
+                    const demoAnimation = document.getElementById('demo-animation');
+                    demo.classList.remove('hidden');
+                    
+                    switch(feature) {
+                        case 'crossroad':
+                            demoTitle.textContent = '混乱路口智能预判';
+                            demoDescription.textContent = '汽车通过千问大脑的实时分析，预判行人、电动车的移动轨迹，安全通过复杂路口。';
+                            demoAnimation.innerHTML = `<div class="flex items-center justify-center w-full"><i class="fa fa-car text-5xl text-primary animate-pulse"></i></div>`;
+                            break;
+                        case 'voice':
+                            demoTitle.textContent = '智能语音指令';
+                            demoDescription.textContent = '你说"找个能吃饭又好停车的地方"，千问大脑立即理解并规划最优路线。';
+                            demoAnimation.innerHTML = `<div class="flex items-center justify-center w-full"><i class="fa fa-microphone text-5xl text-primary"></i></div>`;
+                            break;
+                        case 'emotion':
+                            demoTitle.textContent = '情绪感知系统';
+                            demoDescription.textContent = '千问大脑通过你的语音、表情和行为模式，检测到你疲惫的状态，自动调整车内环境。';
+                            demoAnimation.innerHTML = `<div class="flex items-center justify-center w-full"><i class="fa fa-heartbeat text-5xl text-primary"></i></div>`;
+                            break;
+                    }
+                });
+            });
+            
+            // 关卡2：软件
+            document.getElementById('install-software').addEventListener('click', function() {
+                document.getElementById('software-light').classList.add('active');
+                setTimeout(() => {
+                    document.getElementById('software-features').classList.remove('hidden');
+                    const features = document.querySelectorAll('#software-features .feature-item');
+                    features.forEach((feature, index) => {
+                        setTimeout(() => {
+                            feature.classList.remove('hidden');
+                            feature.classList.add('visible');
+                        }, index * 300);
+                    });
+                }, 1500);
+            });
+            
+            document.querySelectorAll('#software-features .feature-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const feature = this.getAttribute('data-feature');
+                    const demo = document.getElementById('software-demo');
+                    const demoTitle = document.getElementById('software-demo-title');
+                    const demoDescription = document.getElementById('software-demo-description');
+                    const demoAnimation = document.getElementById('software-demo-animation');
+                    demo.classList.remove('hidden');
+                    
+                    switch(feature) {
+                        case 'copywriting':
+                            demoTitle.textContent = '智能文案生成';
+                            demoDescription.textContent = '只需输入简单需求，千问大脑就能生成高质量的文案内容。';
+                            demoAnimation.innerHTML = `<div class="flex items-center justify-center w-full"><i class="fa fa-pencil text-5xl text-primary"></i></div>`;
+                            break;
+                        case 'spreadsheet':
+                            demoTitle.textContent = '智能数据分析';
+                            demoDescription.textContent = '千问大脑自动分析表格数据，生成直观的图表和洞察。';
+                            demoAnimation.innerHTML = `<div class="flex items-center justify-center w-full"><i class="fa fa-table text-5xl text-primary"></i></div>`;
+                            break;
+                        case 'video':
+                            demoTitle.textContent = '智能视频剪辑';
+                            demoDescription.textContent = '千问大脑自动剪辑视频素材，添加特效和转场。';
+                            demoAnimation.innerHTML = `<div class="flex items-center justify-center w-full"><i class="fa fa-film text-5xl text-primary"></i></div>`;
+                            break;
+                    }
+                });
+            });
+            
+            // 关卡3：智能硬件
+            document.getElementById('install-hardware').addEventListener('click', function() {
+                document.getElementById('hardware-light').classList.add('active');
+                setTimeout(() => {
+                    document.getElementById('hardware-features').classList.remove('hidden');
+                    const features = document.querySelectorAll('#hardware-features .feature-item');
+                    features.forEach((feature, index) => {
+                        setTimeout(() => {
+                            feature.classList.remove('hidden');
+                            feature.classList.add('visible');
+                        }, index * 300);
+                    });
+                }, 1500);
+            });
+            
+            document.querySelectorAll('#hardware-features .feature-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const feature = this.getAttribute('data-feature');
+                    const demo = document.getElementById('hardware-demo');
+                    const demoTitle = document.getElementById('hardware-demo-title');
+                    const demoDescription = document.getElementById('hardware-demo-description');
+                    const demoAnimation = document.getElementById('hardware-demo-animation');
+                    demo.classList.remove('hidden');
+                    
+                    switch(feature) {
+                        case 'robot':
+                            demoTitle.textContent = '智能扫地机器人';
+                            demoDescription.textContent = '千问大脑让扫地机器人能够识别不同物体，智能规划清扫路径，避免碰撞。';
+                            demoAnimation.innerHTML = `<div class="flex items-center justify-center w-full"><i class="fa fa-random text-5xl text-primary"></i></div>`;
+                            break;
+                        case 'glasses':
+                            demoTitle.textContent = '智能翻译眼镜';
+                            demoDescription.textContent = '千问大脑让眼镜能够实时识别和翻译外语，帮助你轻松交流。';
+                            demoAnimation.innerHTML = `<div class="flex items-center justify-center w-full"><i class="fa fa-eye text-5xl text-primary"></i></div>`;
+                            break;
+                        case 'watch':
+                            demoTitle.textContent = '智能健康手表';
+                            demoDescription.textContent = '千问大脑让手表能够主动监测你的健康状况，并提供个性化建议。';
+                            demoAnimation.innerHTML = `<div class="flex items-center justify-center w-full"><i class="fa fa-clock-o text-5xl text-primary"></i></div>`;
+                            break;
+                    }
+                });
+            });
+            
+            // 关卡4：智能玩伴
+            document.getElementById('install-toy').addEventListener('click', function() {
+                document.getElementById('toy-light').classList.add('active');
+                setTimeout(() => {
+                    document.getElementById('toy-features').classList.remove('hidden');
+                    const features = document.querySelectorAll('#toy-features .feature-item');
+                    features.forEach((feature, index) => {
+                        setTimeout(() => {
+                            feature.classList.remove('hidden');
+                            feature.classList.add('visible');
+                        }, index * 300);
+                    });
+                }, 1500);
+            });
+            
+            document.querySelectorAll('#toy-features .feature-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const feature = this.getAttribute('data-feature');
+                    const demo = document.getElementById('toy-demo');
+                    const demoTitle = document.getElementById('toy-demo-title');
+                    const demoDescription = document.getElementById('toy-demo-description');
+                    const demoAnimation = document.getElementById('toy-demo-animation');
+                    demo.classList.remove('hidden');
+                    
+                    switch(feature) {
+                        case 'chat':
+                            demoTitle.textContent = '智能聊天伙伴';
+                            demoDescription.textContent = '千问大脑让玩具能够理解你的情绪，陪你聊天解闷。';
+                            demoAnimation.innerHTML = `<div class="flex items-center justify-center w-full"><i class="fa fa-comments text-5xl text-primary"></i></div>`;
+                            break;
+                        case 'story':
+                            demoTitle.textContent = '故事大王';
+                            demoDescription.textContent = '千问大脑让玩具能够讲述各种精彩有趣的故事，激发想象力。';
+                            demoAnimation.innerHTML = `<div class="flex items-center justify-center w-full"><i class="fa fa-book text-5xl text-primary"></i></div>`;
+                            break;
+                        case 'riddle':
+                            demoTitle.textContent = '谜语大师';
+                            demoDescription.textContent = '千问大脑让玩具能够想出各种有趣的谜语，锻炼你的思维。';
+                            demoAnimation.innerHTML = `<div class="flex items-center justify-center w-full"><i class="fa fa-question-circle text-5xl text-primary"></i></div>`;
+                            break;
+                        case 'memory':
+                            demoTitle.textContent = '记忆大师';
+                            demoDescription.textContent = '千问大脑让玩具能够记住你的喜好，成为真正懂你的朋友。';
+                            demoAnimation.innerHTML = `<div class="flex items-center justify-center w-full"><i class="fa fa-heart text-5xl text-primary"></i></div>`;
+                            break;
+                    }
+                });
+            });
+            
+            // 关卡5：自由创造
+            document.querySelectorAll('.item-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.item-option').forEach(opt => {
+                        opt.classList.remove('selected', 'bg-primary', 'text-white');
+                    });
+                    this.classList.add('selected', 'bg-primary', 'text-white');
+                });
+            });
+            
+            document.getElementById('create-ai').addEventListener('click', function() {
+                const selectedItem = document.querySelector('.item-option.selected').getAttribute('data-item');
+                document.getElementById('create-light').classList.add('active');
+                
+                setTimeout(() => {
+                    document.getElementById('creation-result').classList.remove('hidden');
+                    let itemName, itemDescription, itemIcon;
+                    
+                    switch(selectedItem) {
+                        case 'fridge':
+                            itemName = '智能冰箱管家';
+                            itemDescription = '千问大脑让冰箱能够识别食材、推荐菜谱、自动下单购买缺少的食材。';
+                            itemIcon = 'fa-snowflake-o';
+                            break;
+                        case 'ac':
+                            itemName = '智能气候调节师';
+                            itemDescription = '千问大脑让空调能够根据你的体温、活动状态和偏好，自动调节最舒适的温度和湿度。';
+                            itemIcon = 'fa-snowflake-o';
+                            break;
+                        case 'lock':
+                            itemName = '智能安全卫士';
+                            itemDescription = '千问大脑让门锁能够识别家庭成员、访客和陌生人，提供安全保障的同时带来便捷体验。';
+                            itemIcon = 'fa-lock';
+                            break;
+                        case 'lamp':
+                            itemName = '智能光环境设计师';
+                            itemDescription = '千问大脑让台灯能够根据你的活动、时间和心情，自动调节最适合的光线亮度和色温。';
+                            itemIcon = 'fa-lightbulb-o';
+                            break;
+                        case 'bag':
+                            itemName = '智能学习助手';
+                            itemDescription = '千问大脑让书包能够智能整理学习资料、提醒带齐物品、规划学习时间和任务。';
+                            itemIcon = 'fa-briefcase';
+                            break;
+                    }
+                    
+                    // 显示创造结果
+                    document.getElementById('creation-icon').innerHTML = `<i class="fa ${itemIcon}"></i>`;
+                    document.getElementById('creation-name').textContent = itemName;
+                    document.getElementById('creation-description').textContent = itemDescription;
+                    document.getElementById('creation-animation').innerHTML = `<div class="flex items-center justify-center w-full"><i class="fa ${itemIcon} text-5xl text-primary animate-pulse"></i></div>`;
+                    
+                    // 显示海报内容
+                    document.getElementById('poster-icon').innerHTML = `<i class="fa ${itemIcon}"></i>`;
+                    document.getElementById('poster-name').textContent = itemName;
+                    document.getElementById('poster-description').textContent = itemDescription;
+                }, 1500);
+            });
+
+            // 下一关按钮
+            document.querySelectorAll('.next-level').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    showPage('scene-selection');
+                });
+            });
+
+            // 重新开始游戏
+            document.getElementById('restart-game').addEventListener('click', function() {
+                showPage('start-page');
+            });
+
+            // 保存与分享提示
+            document.getElementById('save-poster').addEventListener('click', function() {
+                alert('海报已保存到本地！');
+            });
+            document.getElementById('share-creation').addEventListener('click', function() {
+                alert('分享我的AI新物种成功！');
+            });
+            document.getElementById('learn-more').addEventListener('click', function() {
+                alert('了解更多阿里云千问大模型功能！');
+            });
+            document.getElementById('share-game').addEventListener('click', function() {
+                alert('分享千问大模型互动体验成功！');
+            });
+        });
+    </script>
+</body>
+</html>
